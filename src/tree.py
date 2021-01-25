@@ -1,24 +1,26 @@
 class Node:
-  def __init__(self, value):
-    self.value = value
+  def __init__(self, index):
+    self.value = None
+    self.index = index
     self.children = []
 
 class Tree:
-  def __init__(self, edges):
+  def __init__(self, edges, node_values):
     self.edges = edges
+    self.node_values = node_values
     self.root = self.get_root()
 
-  def get_children(self, node):
+  def get_children(self, index):
     children = []
     for edge in self.edges:
-      if edge[0] == node:
+      if edge[0] == index:
         children.append(edge[1])
     return children
 
-  def get_parents(self, node):
+  def get_parents(self, index):
     parents = []
     for edge in self.edges:
-      if edge[1] == node:
+      if edge[1] == index:
         parents.append(edge[0])
     return parents
 
@@ -33,51 +35,33 @@ class Tree:
     while current_nodes != []:
       current_children = []
       for node in current_nodes:
-        children = [Node(child) for child in self.get_children(node.value)] 
+        node.value = self.node_values[node.index]
+        children = [Node(child) for child in self.get_children(node.index)] 
         node.children = children
         current_children += children
       current_nodes = current_children
+  
+  def nodes_breadth_first(self):
+    queue = [self.root]
+    visited = []
+    while queue != []:
+      visiting = queue[0]
+      queue = queue[1:]
+      visited.append(visiting)
+      children = visiting.children
+      queue = queue + children
+    
+    return visited
 
+  def nodes_depth_first(self):
+    stack = [self.root]
+    visited = []
+    while stack != []:
+      visiting = stack[0]
+      stack = stack[1:]
+      visited.append(visiting)
+      children = visiting.children
+      stack = children + stack
+     
+    return visited
 
-edges = [('a','c'), ('e','g'), ('e','i'), ('e','a'), ('g','b'), ('a','d'), ('d','f'), ('f','h'), ('d','j'), ('c','k')]
-tree = Tree(edges)
-tree.build_from_edges()
-
-print('Testing attribute root...')
-assert tree.root.value == 'e'
-print('PASSED')
-
-print('Testing method build_from_edges...')
-print('Testing children of e...')
-assert [node.value for node in tree.root.children] == ['g', 'i', 'a']
-
-print('Testing children of g...')
-assert [node.value for node in tree.root.children[0].children] == ['b']
-
-print('Testing children of i...')
-assert [node.value for node in tree.root.children[1].children] == []
-
-print('Testing children of a...')
-assert [node.value for node in tree.root.children[2].children] == ['c', 'd']
-
-print('Testing children of c...')
-assert [node.value for node in tree.root.children[2].children[0].children] == ['k'], [node.value for node in tree.root.children[0].children[0].children]
-
-print('Testing children of d...')
-assert [node.value for node in tree.root.children[2].children[1].children] == ['f', 'j']
-
-print('Testing children of b...')
-assert [node.value for node in tree.root.children[0].children[0].children] == []
-
-print('Testing children of k...')
-assert [node.value for node in tree.root.children[2].children[0].children[0].children] == []
-
-print('Testing children of j...')
-assert [node.value for node in tree.root.children[2].children[1].children[1].children] == []
-
-print('Testing children of f...')
-assert [node.value for node in tree.root.children[2].children[1].children[0].children] == ['h']
-
-print('Testing children of h...')
-assert [node.value for node in tree.root.children[2].children[1].children[0].children[0].children] == []
-print('PASSED')
