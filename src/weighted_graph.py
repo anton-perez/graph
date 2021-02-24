@@ -1,3 +1,7 @@
+import sys
+sys.path.append('src')
+from graph import Graph
+
 class Node:
   def __init__(self, index):
     self.index = index
@@ -87,7 +91,6 @@ class WeightedGraph:
         weight = self.weights[edge]
         if neighbor not in visited and current_dist + weight < neighbor.d:
           neighbor.d = current_dist + weight
-          neighbor.previous = visiting
 
       queue = queue + [neighbor 
                        for neighbor in neighbors 
@@ -99,10 +102,13 @@ class WeightedGraph:
 
   def calc_shortest_path(self, starting_node_index, ending_node_index):
     self.set_breadth_first_distance_and_previous(starting_node_index)
-    
-    current_node = self.nodes[ending_node_index]
-    path_list = [ending_node_index]
-    while current_node.index != starting_node_index:
-      current_node = current_node.previous
-      path_list.append(current_node.index)
-    return path_list[::-1]
+    shortest_path_edges = []
+    for edge in self.edges:
+      weight = self.weights[edge]
+      node_a = self.nodes[edge[0]]
+      node_b = self.nodes[edge[1]]
+
+      if abs(node_a.d - node_b.d) == weight:
+        shortest_path_edges.append(edge)
+
+    return Graph(shortest_path_edges).calc_shortest_path(starting_node_index, ending_node_index)
